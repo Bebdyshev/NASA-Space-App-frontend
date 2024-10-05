@@ -1,3 +1,4 @@
+"use client";
 import {
   FaCheckCircle,
   FaUser,
@@ -8,6 +9,9 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
+import axiosInstance from './axios/instance'
+import { useState } from "react";
+import { toast } from 'react-toastify';
 
 const commonStyles = {
   inputIcon:
@@ -22,6 +26,35 @@ const commonStyles = {
 };
 
 const SignUp1 = () => {
+  const [formData, setFormData] = useState({
+    company_name: "",
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await axiosInstance.post("/register/", formData);
+      setSuccess("Successfully signed up!");
+      toast("Login successful");
+      setError("");
+    } catch (err) {
+      setError("Sign-up failed. Please try again.");
+      toast.error("Sign-up failed. Please try again.")
+      setSuccess("");
+    }
+  };
+
   return (
     <section className="bg-white">
       <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -75,7 +108,10 @@ const SignUp1 = () => {
               </Link>
             </p>
 
-            <form action="#" method="POST" className="mt-8 space-y-5">
+            {error && <p className="text-red-500">{error}</p>}
+            {success && <p className="text-green-500">{success}</p>}
+
+            <form action="#" method="POST" onSubmit={handleSignUp} className="mt-8 space-y-5">
               <div>
                 <label className="text-base font-medium text-gray-900">
                   First & Last name
@@ -87,6 +123,9 @@ const SignUp1 = () => {
                   <input
                     type="text"
                     placeholder="Enter your full name"
+                    name="company_name"
+                    value={formData.company_name}
+                    onChange={handleChange}
                     className={commonStyles.input}
                   />
                 </div>
@@ -103,6 +142,9 @@ const SignUp1 = () => {
                   <input
                     type="email"
                     placeholder="Enter email to get started"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     className={commonStyles.input}
                   />
                 </div>
@@ -119,6 +161,9 @@ const SignUp1 = () => {
                   <input
                     type="password"
                     placeholder="Enter your password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
                     className={commonStyles.input}
                   />
                 </div>
